@@ -60,7 +60,6 @@ void GameScene::Update() {
 		audio_->StopWave(voiceHandle_);
 	}
 
-
 	//デバッグテキストの表示
 	debugText_->Print("Kaizokuou ni oreha naru.", 50, 50, 1.0f);
 
