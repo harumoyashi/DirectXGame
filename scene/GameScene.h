@@ -65,4 +65,18 @@ class GameScene {
 
 	//カメラ上方向の角度
 	float viewAngle = 0.0f;
+
+	public:
+		//パーツID
+		enum PartId {
+			Root,	//大元:0
+			Spine,	//脊椎:1
+			Chest,	//胸:2
+			Head,	//頭:3
+			ArmL,	//左腕:4
+			ArmR,	//右腕:5
+			Hip,	//おしり:6
+			LegL,	//左足:7
+			LegR,	//右足:8
+	  };
 };
