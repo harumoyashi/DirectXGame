@@ -23,6 +23,7 @@ void GameScene::Initialize() {
 	//3Dモデルの生成
 	model_ = Model::Create();
 
+
 	//x,y,z方向のスケーリングを設定
 	worldTransform_.scale_ = {5.0f, 5.0f, 5.0f};
 
