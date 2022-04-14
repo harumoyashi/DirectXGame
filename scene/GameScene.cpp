@@ -6,7 +6,9 @@ using namespace DirectX;
 
 GameScene::GameScene() {}
 
-GameScene::~GameScene() { delete model_; }
+GameScene::~GameScene() { 
+	delete model_;
+}
 
 void GameScene::Initialize() {
 
@@ -18,28 +20,20 @@ void GameScene::Initialize() {
 	//ファイルを指定してテクスチャを読み込む
 	textureHandle_ = TextureManager::Load("mario.jpg");
 
-	// 3Dモデルの生成
+	//3Dモデルの生成
 	model_ = Model::Create();
 
-	for (size_t i = 0; i < _countof(worldTransform_); i++) {
-		for (size_t j = 0; j < _countof(worldTransform_); j++) {
-			for (size_t k = 0; k < _countof(worldTransform_); k++) {
-				// x,y,z方向のスケーリングを設定
-				worldTransform_[k][j][i].scale_ = {1.0f, 1.0f, 1.0f};
+	//x,y,z方向のスケーリングを設定
+	worldTransform_.scale_ = {5.0f, 5.0f, 5.0f};
 
-				// x,y,z軸周りの回転角を設定
-				worldTransform_[k][j][i].rotation_ = {0.0f, 0.0f, 0.0f};
+	//x,y,z軸周りの回転角を設定
+	worldTransform_.rotation_ = {XMConvertToRadians(45.0f), XMConvertToRadians(45.0f), 0.0f};
 
-				// x,y,z軸周りの平行移動を設定
-				worldTransform_[k][j][i].translation_ = {
-				  i * 4.0f - 15.0f, j * 4.0f - 15.0f, k * 2.0f};
+	//x,y,z軸周りの平行移動を設定
+	worldTransform_.translation_ = {10.0f, 10.0f, 10.0f};
 
-				//ワールドトランスフォームの初期化
-				worldTransform_[k][j][i].Initialize();
-			}
-		}
-	}
-
+	//ワールドトランスフォームの初期化
+	worldTransform_.Initialize();
 	//ビュープロジェクションの初期化
 	viewProjection_.Initialize();
 }
@@ -73,13 +67,7 @@ void GameScene::Draw() {
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
 	// 3Dモデル描画
-	for (size_t i = 0; i < _countof(worldTransform_); i++) {
-		for (size_t j = 0; j < _countof(worldTransform_); j++) {
-			for (size_t k = 0; k < _countof(worldTransform_); k++) {
-				model_->Draw(worldTransform_[k][j][i], viewProjection_, textureHandle_);
-			}
-		}
-	}
+	model_->Draw(worldTransform_, viewProjection_, textureHandle_);
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
