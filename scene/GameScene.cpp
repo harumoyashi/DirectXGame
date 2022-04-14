@@ -21,6 +21,7 @@ void GameScene::Initialize() {
 	// 3Dモデルの生成
 	model_ = Model::Create();
 
+
 	for (size_t i = 0; i < _countof(worldTransform_); i++) {
 		for (size_t j = 0; j < _countof(worldTransform_); j++) {
 			for (size_t k = 0; k < _countof(worldTransform_); k++) {
