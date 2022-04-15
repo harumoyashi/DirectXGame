@@ -10,7 +10,7 @@
 class DebugText {
   public:
 	// デバッグテキスト用のテクスチャ番号を指定
-	static const int kMaxCharCount = 256; // 最大文字数
+	static const int kMaxCharCount = 512; // 最大文字数
 	static const int kFontWidth = 9;      // フォント画像内1文字分の横幅
 	static const int kFontHeight = 18;    // フォント画像内1文字分の縦幅
 	static const int kFontLineCount = 14; // フォント画像内1行分の文字数
