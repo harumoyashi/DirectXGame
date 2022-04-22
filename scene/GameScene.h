@@ -62,4 +62,7 @@ class GameScene {
 	WorldTransform worldTransform_[2];
 	//ビュープロジェクション
 	ViewProjection viewProjection_;
+
+	//オブジェクトの回転角度
+	float viewAngle = 0.0f;
 };

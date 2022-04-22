@@ -36,32 +36,55 @@ void GameScene::Initialize() {
 	}
 
 	//カメラ視点座標設定
-	viewProjection_.eye = {0, 0, -150.0f};
+	viewProjection_.eye = {0, 50.0f, -150.0f};
 
 	//ビュープロジェクションの初期化
 	viewProjection_.Initialize();
 }
 
 void GameScene::Update() {
-	//自機の移動ベクトル
+	//オブジェクトの移動ベクトル
 	XMFLOAT3 move = {0, 0, 0};
 
-	const float speed = 0.2f;
+	const float moveSpeed = 0.5f;
 
-	//移動ベクトル変更
+	//平行移動(x,y,z)
 	if (input_->PushKey(DIK_LEFT)) {
-		move = {0, 0, -speed};
+		worldTransform_[1].translation_.x -= moveSpeed;
 	} else if (input_->PushKey(DIK_RIGHT)) {
-		move = {0, 0, speed};
+		worldTransform_[1].translation_.x += moveSpeed;
 	}
 
-	//ベクトル加算
-	worldTransform_[1].translation_.x += move.x;
-	worldTransform_[1].translation_.y += move.y;
-	worldTransform_[1].translation_.z += move.z;
+	if (input_->PushKey(DIK_S)) {
+		worldTransform_[1].translation_.y -= moveSpeed;
+	} else if (input_->PushKey(DIK_W)) {
+		worldTransform_[1].translation_.y += moveSpeed;
+	}
+
+	if (input_->PushKey(DIK_DOWN)) {
+		worldTransform_[1].translation_.z -= moveSpeed;
+	} else if (input_->PushKey(DIK_UP)) {
+		worldTransform_[1].translation_.z += moveSpeed;
+	}
+
+	//回転移動(横)
+	const float rotSpeed = 0.02f;
+
+	//回転ベクトル変更
+	if (input_->PushKey(DIK_U)) {
+		viewAngle += rotSpeed;
+		viewAngle = fmodf(viewAngle, XM_2PI);
+	} else if (input_->PushKey(DIK_I)) {
+		viewAngle -= rotSpeed;
+		viewAngle = fmodf(viewAngle, XM_2PI);
+	}
+
+	//回転ベクトルの加算
+	worldTransform_[1].translation_.x = cosf(viewAngle) * 30.0f;
+	worldTransform_[1].translation_.z = sinf(viewAngle) * 30.0f;
 
 	//行列の再計算
-	viewProjection_.UpdateMatrix();
+	worldTransform_[1].UpdateMatrix();
 }
 
 void GameScene::Draw() {
