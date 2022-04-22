@@ -59,7 +59,7 @@ class GameScene {
 	Model* model_ = nullptr;
 
 	//ワールドトランスフォーム
-	WorldTransform worldTransform_[100];
+	WorldTransform worldTransform_[10];
 	//ビュープロジェクション
 	ViewProjection viewProjection_;
 
@@ -78,5 +78,15 @@ class GameScene {
 			Hip,	//おしり:6
 			LegL,	//左足:7
 			LegR,	//右足:8
+			Oppai	//おっぱい:9
 	  };
+
+		struct Vector {
+		    float x;
+		    float y;
+		    float z;
+		};
+
+		//正面ベクトル用意
+	    Vector frontVector = {0, 0, 0.0f};
 };
