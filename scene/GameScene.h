@@ -55,6 +55,9 @@ class GameScene {
 	//テクスチャハンドル
 	uint32_t textureHandle_ = 0;
 
+	//サウンドハンドル
+	uint32_t soundDetaHandle_ = 0;
+
 	//3Dモデル
 	Model* model_ = nullptr;
 
@@ -65,4 +68,7 @@ class GameScene {
 
 	//オブジェクトの回転角度
 	float viewAngle = 0.0f;
+
+	typedef struct X3DAUDIO_EMITTER {};
+	X3DAUDIO_EMITTER *audioEmitter;
 };

@@ -2,6 +2,8 @@
 #include "TextureManager.h"
 #include <cassert>
 
+#include <Audio.h>
+
 using namespace DirectX;
 
 GameScene::GameScene() {}
@@ -17,6 +19,9 @@ void GameScene::Initialize() {
 
 	//ファイルを指定してテクスチャを読み込む
 	textureHandle_ = TextureManager::Load("mario.jpg");
+
+	//サウンドデータ読み込み
+	soundDetaHandle_ = TextureManager::Load("test.wav");
 
 	// 3Dモデルの生成
 	model_ = Model::Create();
@@ -40,6 +45,11 @@ void GameScene::Initialize() {
 
 	//ビュープロジェクションの初期化
 	viewProjection_.Initialize();
+
+	
+	//
+
+	
 }
 
 void GameScene::Update() {
