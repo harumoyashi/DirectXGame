@@ -88,5 +88,5 @@ class GameScene {
 		};
 
 		//正面ベクトル用意
-	    Vector frontVector = {0, 0, 0.0f};
+	    Vector frontVector = {0.0f, 0.0f, 0.0f};
 };

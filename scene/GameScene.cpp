@@ -201,13 +201,13 @@ void GameScene::Update() {
 	//押した方向で移動ベクトルを変更
 	if (input_->PushKey(DIK_LEFT)) {
 		frontVector.y += -0.05f;
-		frontVector.y = fmodf(frontVector.y, XM_PI);
+		frontVector.y = fmodf(frontVector.y, XM_2PI);
 	} else if (input_->PushKey(DIK_RIGHT)) {
 		frontVector.y += 0.05f;
 		frontVector.y = fmodf(frontVector.y, XM_2PI);
 	}
 
-	worldTransform_[PartId::Root].rotation_.y = sinf(frontVector.y)*10.0f;
+	worldTransform_[PartId::Root].rotation_.y = sinf(frontVector.y);
 
 	worldTransform_[PartId::Root].UpdateMatrix();
 
@@ -276,6 +276,11 @@ viewProjection_.target.y,viewProjection_.target.z);
 	debugText_->Printf(
 	  "Root:(%f,%f,%f)", worldTransform_[PartId::Oppai].translation_.x,
 	  worldTransform_[PartId::Oppai].translation_.y, worldTransform_[PartId::Oppai].translation_.z);
+
+	debugText_->SetPos(50, 300);
+	debugText_->Printf(
+	  "Root.Rota:(%f,%f,%f)", worldTransform_[PartId::Root].rotation_.x,
+	  worldTransform_[PartId::Root].rotation_.y, worldTransform_[PartId::Oppai].translation_.z);
 }
 
 void GameScene::Draw() {
