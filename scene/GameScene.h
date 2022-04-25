@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 #include "Audio.h"
-#include "DirectXCommon.h"
 #include "DebugText.h"
+#include "DirectXCommon.h"
 #include "Input.h"
 #include "Model.h"
 #include "SafeDelete.h"
@@ -51,42 +51,35 @@ class GameScene {
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
-	
+
 	//テクスチャハンドル
 	uint32_t textureHandle_ = 0;
 
-	//3Dモデル
+	// 3Dモデル
 	Model* model_ = nullptr;
 
 	//ワールドトランスフォーム
-	WorldTransform worldTransform_[10];
+	WorldTransform worldTransform_[11];
+	WorldTransform objWorldTransform_[10][10];
 	//ビュープロジェクション
 	ViewProjection viewProjection_;
 
 	//カメラ上方向の角度
 	float viewAngle = 0.0f;
 
-	public:
-		//パーツID
-		enum PartId {
-			Root,	//大元:0
-			Spine,	//脊椎:1
-			Chest,	//胸:2
-			Head,	//頭:3
-			ArmL,	//左腕:4
-			ArmR,	//右腕:5
-			Hip,	//おしり:6
-			LegL,	//左足:7
-			LegR,	//右足:8
-			Oppai	//おっぱい:9
-	  };
-
-		struct Vector {
-		    float x;
-		    float y;
-		    float z;
-		};
-
-		//正面ベクトル用意
-	    Vector frontVector = {0.0f, 0.0f, 1.0f};
+  public:
+	//パーツID
+	enum PartId {
+		Root,  //大元:0
+		Spine, //脊椎:1
+		Chest, //胸:2
+		Head,  //頭:3
+		ArmL,  //左腕:4
+		ArmR,  //右腕:5
+		Hip,   //おしり:6
+		LegL,  //左足:7
+		LegR,  //右足:8
+		ROppai,//右乳:9
+		LOppai //左乳:10
+	};
 };
