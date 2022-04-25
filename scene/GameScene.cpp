@@ -56,7 +56,7 @@ void GameScene::Initialize() {
 	worldTransform_[PartId::Chest].parent_ = &worldTransform_[PartId::Spine];
 	worldTransform_[PartId::Chest].Initialize();
 	//おっぱい:子(9番)
-	worldTransform_[PartId::Oppai].translation_ = {0, 0, -2.5f};
+	worldTransform_[PartId::Oppai].translation_ = {0, 0, 2.5f};
 	worldTransform_[PartId::Oppai].parent_ = &worldTransform_[PartId::Chest];
 	worldTransform_[PartId::Oppai].Initialize();
 	//頭:子(3番)
@@ -190,24 +190,23 @@ void GameScene::Update() {
 
 	if (input_->PushKey(DIK_UP)) {
 		worldTransform_[PartId::Root].translation_.x += kCharacterSpeed * frontVector.x;
-		worldTransform_[PartId::Root].translation_.y += kCharacterSpeed * frontVector.y;
 		worldTransform_[PartId::Root].translation_.z += kCharacterSpeed * frontVector.z;
 	} else if (input_->PushKey(DIK_DOWN)) {
 		worldTransform_[PartId::Root].translation_.x -= kCharacterSpeed * frontVector.x;
-		worldTransform_[PartId::Root].translation_.y -= kCharacterSpeed * frontVector.y;
 		worldTransform_[PartId::Root].translation_.z -= kCharacterSpeed * frontVector.z;
 	}
 
+	const float rotSpeed = 0.05f;
+
 	//押した方向で移動ベクトルを変更
 	if (input_->PushKey(DIK_LEFT)) {
-		frontVector.y += -0.05f;
-		frontVector.y = fmodf(frontVector.y, XM_2PI);
+		worldTransform_[PartId::Root].rotation_.y += rotSpeed;
 	} else if (input_->PushKey(DIK_RIGHT)) {
-		frontVector.y += 0.05f;
-		frontVector.y = fmodf(frontVector.y, XM_2PI);
+		worldTransform_[PartId::Root].rotation_.y -= rotSpeed;
 	}
 
-	worldTransform_[PartId::Root].rotation_.y = sinf(frontVector.y);
+	frontVector.x = sinf(worldTransform_[PartId::Root].rotation_.y);
+	frontVector.z = cosf(worldTransform_[PartId::Root].rotation_.y);
 
 	worldTransform_[PartId::Root].UpdateMatrix();
 
@@ -274,8 +273,7 @@ viewProjection_.target.y,viewProjection_.target.z);
 
 	debugText_->SetPos(50, 150);
 	debugText_->Printf(
-	  "Root:(%f,%f,%f)", worldTransform_[PartId::Oppai].translation_.x,
-	  worldTransform_[PartId::Oppai].translation_.y, worldTransform_[PartId::Oppai].translation_.z);
+	  "frontVector:(%f,%f,%f)", frontVector.x,frontVector.y,frontVector.z);
 
 	debugText_->SetPos(50, 300);
 	debugText_->Printf(
