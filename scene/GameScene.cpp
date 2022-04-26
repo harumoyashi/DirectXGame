@@ -21,31 +21,37 @@ void GameScene::Initialize() {
 	// 3Dモデルの生成
 	model_ = Model::Create();
 
-
 	for (size_t i = 0; i < _countof(worldTransform_); i++) {
-		for (size_t j = 0; j < _countof(worldTransform_); j++) {
-			for (size_t k = 0; k < _countof(worldTransform_); k++) {
-				// x,y,z方向のスケーリングを設定
-				worldTransform_[k][j][i].scale_ = {1.0f, 1.0f, 1.0f};
+		// x,y,z方向のスケーリングを設定
+		worldTransform_[i].scale_ = {1.0f, 1.0f, 1.0f};
 
-				// x,y,z軸周りの回転角を設定
-				worldTransform_[k][j][i].rotation_ = {0.0f, 0.0f, 0.0f};
+		// x,y,z軸周りの回転角を設定
+		worldTransform_[i].rotation_ = {0.0f, 0.0f, 0.0f};
 
-				// x,y,z軸周りの平行移動を設定
-				worldTransform_[k][j][i].translation_ = {
-				  i * 4.0f - 15.0f, j * 4.0f - 15.0f, k * 2.0f};
+		// x,y,z軸周りの平行移動を設定
+		worldTransform_[i].translation_ = {0.0f, 0.0f, 0.0f};
 
-				//ワールドトランスフォームの初期化
-				worldTransform_[k][j][i].Initialize();
-			}
-		}
+		//ワールドトランスフォームの初期化
+		worldTransform_[i].Initialize();
+
+		pos[i] = i * 0.7f;
 	}
 
 	//ビュープロジェクションの初期化
 	viewProjection_.Initialize();
 }
 
-void GameScene::Update() {}
+void GameScene::Update() {
+	const float speed = 0.05f;
+
+	for (size_t i = 0; i < _countof(worldTransform_); i++) {
+		pos[i] += speed;
+		worldTransform_[i].translation_.x = sinf(pos[i]) * 15.0f;
+		worldTransform_[i].translation_.y = cosf(pos[i]) * 15.0f;
+
+		worldTransform_[i].UpdateMatrix();
+	}
+}
 
 void GameScene::Draw() {
 
@@ -75,11 +81,7 @@ void GameScene::Draw() {
 	/// </summary>
 	// 3Dモデル描画
 	for (size_t i = 0; i < _countof(worldTransform_); i++) {
-		for (size_t j = 0; j < _countof(worldTransform_); j++) {
-			for (size_t k = 0; k < _countof(worldTransform_); k++) {
-				model_->Draw(worldTransform_[k][j][i], viewProjection_, textureHandle_);
-			}
-		}
+		model_->Draw(worldTransform_[i], viewProjection_, textureHandle_);
 	}
 
 	// 3Dオブジェクト描画後処理
