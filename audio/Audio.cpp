@@ -1,4 +1,5 @@
 ﻿#include "Audio.h"
+#include "x3daudio.h"
 
 #include <cassert>
 #include <fstream>
@@ -35,6 +36,26 @@ void Audio::Initialize(const std::string& directoryPath) {
 
 	indexSoundData_ = 0u;
 	indexVoice_ = 0u;
+
+	//チャネルマスク(どっから音出すかのビット情報)設定
+	DWORD dwChannelMask;
+	masterVoice->GetChannelMask(&dwChannelMask);
+
+	//X3DAudio初期化
+	X3DAUDIO_HANDLE X3DInstance;
+	X3DAudioInitialize(dwChannelMask, X3DAUDIO_SPEED_OF_SOUND, X3DInstance);
+
+	//エミッタ構造体のインスタンスを作成
+	X3DAUDIO_LISTENER Listener = {};
+	X3DAUDIO_EMITTER Emitter = {};
+	Emitter.ChannelCount = 1;
+	Emitter.CurveDistanceScaler = FLT_MIN;
+
+	X3DAUDIO_DSP_SETTINGS DSPSettings = {0};
+	FLOAT32* matrix = new FLOAT32[deviceDetails.OutputFormat.Format.nChannels];
+	DSPSettings.SrcChannelCount = 1;
+	DSPSettings.DstChannelCount = deviceDetails.OutputFormat.Format.nChannels;
+	DSPSettings.pMatrixCoefficients = matrix;
 }
 
 void Audio::Finalize() {
