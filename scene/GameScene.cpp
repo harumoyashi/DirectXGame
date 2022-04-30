@@ -23,22 +23,13 @@ void GameScene::Initialize() {
 
 	//3Dモデルの生成
 	model_ = Model::Create();
-	
-	//乱数シード生成器
-	std::random_device seed_gen;
-	//メルセンヌ・ツイスター
-	std::mt19937_64 engine(seed_gen());
-	//乱数範囲(回転角用)
-	std::uniform_real_distribution<float> rotDist(0.0f, XM_2PI);
-	//乱数範囲(座標用)
-	std::uniform_real_distribution<float> posDist(-10.0f, 10.0f);
 
 	for (size_t i = 0; i < _countof(worldTransform_); i++) {
 		// x,y,z方向のスケーリングを設定
 		worldTransform_[i].scale_ = {1.0f, 1.0f, 1.0f};
 
 		// x,y,z軸周りの回転角を設定
-		worldTransform_[i].rotation_ = {rotDist(engine), rotDist(engine), rotDist(engine)};
+		worldTransform_[i].rotation_ = {0,0,0};
 
 		// x,y,z軸周りの平行移動を設定
 		worldTransform_[0].translation_ = {0.0f, 5.0f, 0.0f};
@@ -53,87 +44,65 @@ void GameScene::Initialize() {
 	viewProjection_.eye = {0, 0, -25};
 
 	//カメラ注視点座標を設定
-	viewProjection_.target = {0, 0, 0};
+	viewProjection_.target = worldTransform_[0].translation_;
 
 	//カメラ上方向ベクトルを設定(右上45度指定)
-	viewProjection_.up = {cosf(XM_PI / 4.0f), sinf(XM_PI / 4.0f), 0.0f};
+	viewProjection_.up = {0, sinf(XM_PI / 2.0f), 0.0f};
 
 	//ビュープロジェクションの初期化
 	viewProjection_.Initialize();
 }
 
+float GameScene::SetSpeed(float x, float nx) {
+	tMoveFrame = 10; //ここ変えると移動仕切るまでのフレーム数が変わる
+	return (x - nx) / tMoveFrame;
+}
+
+int GameScene::NumLoop(int x, int loopBreak) {
+	if (x < loopBreak) {
+		x++;
+	} else {
+		x = 0;
+	}
+
+	return x;
+}
+
 void GameScene::Update() {
-	////視点の移動処理
-	////視点の移動ベクトル
-	//XMFLOAT3 move = {0, 0, 0};
-
-	////視点の移動速度
-	//const float kEyeSpeed = 0.2f;
-
-	////押した方向で移動ベクトルを変更
-	//if (input_->PushKey(DIK_W)) {
-	//	move = {0, 0, kEyeSpeed};
-	//} else if (input_->PushKey(DIK_S)) {
-	//	move = {0, 0, -kEyeSpeed};
-	//}
-
-	////視点移動（ベクトルの加算）
-	//viewProjection_.eye.x += move.x;
-	//viewProjection_.eye.y += move.y;
-	//viewProjection_.eye.z += move.z;
-
-	////行列の再計算
-	//viewProjection_.UpdateMatrix();
-
-	
-	//注視点の移動処理
-	//注視点の移動ベクトル
-	//XMFLOAT3 tMove = {0, 0, 0};
-
-	////注視点の移動速度
-	//const float kTatgetSpeed = 0.2f;
-
-	////押した方向で移動ベクトルを変更
-	//if (input_->PushKey(DIK_LEFT)) {
-	//	tMove = {-kTatgetSpeed, 0, 0};
-	//} else if (input_->PushKey(DIK_RIGHT)) {
-	//	tMove = {kTatgetSpeed, 0, 0};
-	//}
-
 	//注視点番号の切り替え
-	if (input_->TriggerKey(DIK_SPACE)) {
-		if (tViewNum<2) {
-			tViewNum++;
-		} else {
-			tViewNum = 0;
+	if (isTargetChange == false) {
+		if (input_->TriggerKey(DIK_SPACE)) {
+			//注視点フラグオン
+			isTargetChange = true;
+
+			//注視点移動スピードを設定
+			tSpeedX = SetSpeed(
+			  worldTransform_[tViewNum].translation_.x, worldTransform_[tNextNum].translation_.x);
+
+			tSpeedY = SetSpeed(
+			  worldTransform_[tViewNum].translation_.y, worldTransform_[tNextNum].translation_.y);
 		}
 	}
 
-	//注視点移動（ベクトルの加算）
-	viewProjection_.target.x = worldTransform_[tViewNum].translation_.x;
-	viewProjection_.target.y = worldTransform_[tViewNum].translation_.y;
-	viewProjection_.target.z = worldTransform_[tViewNum].translation_.z;
+	if (isTargetChange == true) {
+		//注視点移動
+		if (tMoveFrame > 0) {
+			viewProjection_.target.x += tSpeedX;
+			viewProjection_.target.y -= tSpeedY;
 
-	//行列の再計算
-	viewProjection_.UpdateMatrix();
+			tMoveFrame--;
+		} 
+		else {
+			//次のビューに
+			tViewNum = NumLoop(tViewNum, 2);
+			tNextNum = NumLoop(tNextNum, 2);
 
+			isTargetChange = false;
+		}
 
-	////上方向回転処理
-	////上方向の回転速度[ラジアン/frame]
-	//const float kUpRotSpeed = 0.05f;
-
-	////押した方向で移動ベクトルを変更
-	//if (input_->PushKey(DIK_SPACE)) {
-	//	viewAngle += kUpRotSpeed;
-	//	//2πを超えたら0に戻す
-	//	viewAngle = fmodf(viewAngle, XM_2PI);
-	//}
-
-	////上方向ベクトルを計算(半径1の円周上の座標)
-	//viewProjection_.up = {cosf(viewAngle), sinf(viewAngle), 0.0f};
-
-	////行列の再計算
-	//viewProjection_.UpdateMatrix();
+		//行列の再計算
+		viewProjection_.UpdateMatrix();
+	}
 
 	//デバッグ用表示
 	debugText_->SetPos(50, 50);
