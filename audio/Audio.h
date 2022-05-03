@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <wrl.h>
 #include <xaudio2.h>
+#include "x3daudio.h"
 
 /// <summary>
 /// オーディオ
@@ -51,6 +52,21 @@ class Audio {
 		uint32_t handle = 0u;
 		IXAudio2SourceVoice* sourceVoice = nullptr;
 	};
+
+	//聞こえる方向や位置の変数
+	X3DAUDIO_VECTOR EOrientFront = {};
+	X3DAUDIO_VECTOR EOrientTop   = {};
+	X3DAUDIO_VECTOR EPosition    = {};
+	X3DAUDIO_VECTOR EVelocity    = {};
+	X3DAUDIO_VECTOR LOrientFront = {};
+	X3DAUDIO_VECTOR LOrientTop   = {};
+	X3DAUDIO_VECTOR LPosition    = {};
+	X3DAUDIO_VECTOR LVelocity    = {};
+
+	//オーディオデータを扱う便利なインターフェース
+	IXAudio2SourceVoice* pSourceVoice = nullptr;
+	//サブミックスボイス
+	IXAudio2SourceVoice* pSubmixVoice;
 
 	/// <summary>
 	/// オーディオコールバック

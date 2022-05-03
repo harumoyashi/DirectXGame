@@ -68,7 +68,4 @@ class GameScene {
 
 	//オブジェクトの回転角度
 	float viewAngle = 0.0f;
-
-	typedef struct X3DAUDIO_EMITTER {};
-	X3DAUDIO_EMITTER *audioEmitter;
 };
