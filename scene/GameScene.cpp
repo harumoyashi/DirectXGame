@@ -20,8 +20,8 @@ void GameScene::Initialize() {
 	//ファイルを指定してテクスチャを読み込む
 	textureHandle_ = TextureManager::Load("mario.jpg");
 
-	////サウンドデータ読み込み
-	//soundDetaHandle_ = TextureManager::Load("fanfare.wav");
+	//サウンドデータ読み込み
+	soundDetaHandle_ = audio_->LoadWave("fanfare.wav");
 
 	// 3Dモデルの生成
 	model_ = Model::Create();
