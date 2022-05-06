@@ -23,6 +23,9 @@ void GameScene::Initialize() {
 	//サウンドデータ読み込み
 	soundDetaHandle_ = audio_->LoadWave("fanfare.wav");
 
+	//音声再生
+	audio_->PlayWave(soundDetaHandle_,true,1.0f);
+
 	// 3Dモデルの生成
 	model_ = Model::Create();
 
@@ -85,11 +88,14 @@ void GameScene::Update() {
 	}
 
 	//回転ベクトルの加算
-	worldTransform_[1].translation_.x = cosf(viewAngle) * 30.0f;
-	worldTransform_[1].translation_.z = sinf(viewAngle) * 30.0f;
+	worldTransform_[Listener].translation_.x = cosf(viewAngle) * 30.0f;
+	worldTransform_[Listener].translation_.z = sinf(viewAngle) * 30.0f;
 
 	//行列の再計算
-	worldTransform_[1].UpdateMatrix();
+	worldTransform_[Listener].UpdateMatrix();
+
+	audio_->Emitter.Position = worldTransform_[Emitter].translation_;
+	audio_->Listener.Position = worldTransform_[Listener].translation_;
 }
 
 void GameScene::Draw() {

@@ -15,7 +15,6 @@ void Audio::XAudio2VoiceCallback::OnBufferEnd(THIS_ void* pBufferContext) {
 
 Audio* Audio::GetInstance() {
 	static Audio instance;
-
 	return &instance;
 }
 
@@ -23,7 +22,6 @@ void Audio::Initialize(const std::string& directoryPath) {
 	directoryPath_ = directoryPath;
 
 	HRESULT result;
-	IXAudio2MasteringVoice* masterVoice;
 
 	// XAudioエンジンのインスタンスを生成
 	result = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
@@ -41,53 +39,17 @@ void Audio::Initialize(const std::string& directoryPath) {
 	masterVoice->GetChannelMask(&dwChannelMask);
 
 	//X3DAudio初期化
-	X3DAUDIO_HANDLE X3DInstance;
 	X3DAudioInitialize(dwChannelMask, X3DAUDIO_SPEED_OF_SOUND, X3DInstance);
 
 	//エミッタ構造体のインスタンスを作成
-	X3DAUDIO_LISTENER Listener = {};
-	X3DAUDIO_EMITTER Emitter = {};
 	Emitter.ChannelCount = 1;
 	Emitter.CurveDistanceScaler = FLT_MIN;
 
 	//X3DAUDIO_DSP_SETTING構造体のインスタンスを作成
-	X3DAUDIO_DSP_SETTINGS DSPSettings = {0};
 	FLOAT32* matrix = new FLOAT32[Emitter.ChannelCount];	//ここ一帯不安すぎ
 	DSPSettings.SrcChannelCount = Emitter.ChannelCount;
 	DSPSettings.DstChannelCount = Emitter.ChannelCount;
 	DSPSettings.pMatrixCoefficients = matrix;
-
-	//向き、位置、ベクトルの代入
-	Emitter.OrientFront = EOrientFront;
-	Emitter.OrientTop = EOrientTop;
-	Emitter.Position = EPosition;
-	Emitter.Velocity = EVelocity;
-	Listener.OrientFront = LOrientFront;
-	Listener.OrientTop = LOrientTop;
-	Listener.Position = LPosition;
-	Listener.Velocity = LVelocity;
-
-	//音声の新しい設定を計算
-	X3DAudioCalculate(
-	  X3DInstance, &Listener, &Emitter,
-	  X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_DOPPLER | X3DAUDIO_CALCULATE_LPF_DIRECT |
-	    X3DAUDIO_CALCULATE_REVERB,
-	  &DSPSettings);	//紫の文字:どの種類の計算を有効にするか,DSPSettings:計算結果受け取るポインタ
-
-	//ソースの音声にボリュームの値を適用
-	pSourceVoice->SetOutputMatrix(
-	  masterVoice, 1, Emitter.ChannelCount,
-	  DSPSettings.pMatrixCoefficients);
-	//ピッチも適用
-	pSourceVoice->SetFrequencyRatio(DSPSettings.DopplerFactor);
-
-	//計算されたリバーブレベルをサブミックスの音声に適用
-	pSourceVoice->SetOutputMatrix(pSubmixVoice, 1, 1, &DSPSettings.ReverbLevel);
-
-	//計算された低パスフィルターの直接係数をソースの音声に適用
-	XAUDIO2_FILTER_PARAMETERS FilterParameters = {
-	  LowPassFilter, 2.0f * sinf(X3DAUDIO_PI / 6.0f * DSPSettings.LPFDirectCoefficient), 1.0f};
-	pSourceVoice->SetFilterParameters(&FilterParameters);
 }
 
 void Audio::Finalize() {
@@ -214,6 +176,37 @@ uint32_t Audio::PlayWave(uint32_t soundDataHandle, bool loopFlag, float volume) 
 	voice->sourceVoice = pSourceVoice;
 	// 再生中データコンテナに登録
 	voices_.insert(voice);
+
+	//向き、位置、ベクトルの代入
+	Emitter.OrientFront = EOrientFront;
+	Emitter.OrientTop = EOrientTop;
+	Emitter.Position = EPosition;
+	Emitter.Velocity = EVelocity;
+	Listener.OrientFront = LOrientFront;
+	Listener.OrientTop = LOrientTop;
+	Listener.Position = LPosition;
+	Listener.Velocity = LVelocity;
+
+	//音声の新しい設定を計算
+	X3DAudioCalculate(
+	  X3DInstance, &Listener, &Emitter,
+	  X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_DOPPLER | X3DAUDIO_CALCULATE_LPF_DIRECT |
+	    X3DAUDIO_CALCULATE_REVERB,
+	  &DSPSettings); //紫の文字:どの種類の計算を有効にするか,DSPSettings:計算結果受け取るポインタ
+
+	//ソースの音声にボリュームの値を適用
+	pSourceVoice->SetOutputMatrix(
+	  masterVoice, 1, Emitter.ChannelCount, DSPSettings.pMatrixCoefficients);
+	//ピッチも適用
+	pSourceVoice->SetFrequencyRatio(DSPSettings.DopplerFactor);
+
+	//計算されたリバーブレベルをサブミックスの音声に適用
+	pSourceVoice->SetOutputMatrix(pSubmixVoice, 1, 1, &DSPSettings.ReverbLevel);
+
+	//計算された低パスフィルターの直接係数をソースの音声に適用
+	XAUDIO2_FILTER_PARAMETERS FilterParameters = {
+	  LowPassFilter, 2.0f * sinf(X3DAUDIO_PI / 6.0f * DSPSettings.LPFDirectCoefficient), 1.0f};
+	pSourceVoice->SetFilterParameters(&FilterParameters);
 
 	// 再生する波形データの設定
 	XAUDIO2_BUFFER buf{};

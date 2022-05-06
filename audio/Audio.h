@@ -63,10 +63,22 @@ class Audio {
 	X3DAUDIO_VECTOR LPosition    = {};
 	X3DAUDIO_VECTOR LVelocity    = {};
 
+	//X3DAudioのインスタンス
+	X3DAUDIO_HANDLE X3DInstance;
+
 	//オーディオデータを扱う便利なインターフェース
 	IXAudio2SourceVoice* pSourceVoice = nullptr;
+	//マスターボイス
+	IXAudio2MasteringVoice* masterVoice;
 	//サブミックスボイス
 	IXAudio2SourceVoice* pSubmixVoice;
+
+	//リスナー、エミッタ構造体
+	X3DAUDIO_LISTENER Listener = {};
+	X3DAUDIO_EMITTER Emitter = {};
+
+	// X3DAUDIO_DSP_SETTING構造体
+	X3DAUDIO_DSP_SETTINGS DSPSettings = {};
 
 	/// <summary>
 	/// オーディオコールバック
