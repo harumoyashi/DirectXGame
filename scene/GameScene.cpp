@@ -23,6 +23,9 @@ void GameScene::Initialize() {
 	//サウンドデータ読み込み
 	soundDetaHandle_ = audio_->LoadWave("fanfare.wav");
 
+	//音声再生
+	audio_->PlayWave(soundDetaHandle_, true, 1.0f);
+
 	// 3Dモデルの生成
 	model_ = Model::Create();
 
@@ -90,6 +93,32 @@ void GameScene::Update() {
 
 	//行列の再計算
 	worldTransform_[1].UpdateMatrix();
+
+	audio_->Emitter.Position = worldTransform_[Emitter].translation_;
+	audio_->Listener.Position = worldTransform_[Listener].translation_;
+
+	//1Way音量調整//
+	//Y座標の距離計算
+	float distance;
+	distance = abs(audio_->Emitter.Position.y - audio_->Listener.Position.y);
+
+	//距離をもとに音量パラメーター設定
+	float volume;
+	if (distance <= 0.0f) {
+		volume = 1.0f;
+	} else if (distance > 100.0f) {
+		volume = 0.0f;
+	} else {
+		volume = 1.0f - distance / 100.0f;
+	}
+
+	//音量調整
+	audio_->SetVolume(soundDetaHandle_, volume);
+
+	debugText_->SetPos(20, 20);
+	debugText_->Printf(
+	  "listenerPos:\nx:%f\ny:%f\nz:%f", audio_->Listener.Position.x, audio_->Listener.Position.y,
+	  audio_->Listener.Position.z);
 }
 
 void GameScene::Draw() {

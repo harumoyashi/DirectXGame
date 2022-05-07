@@ -68,4 +68,10 @@ class GameScene {
 
 	//オブジェクトの回転角度
 	float viewAngle = 0.0f;
+
+	enum AudioMember
+	{
+		Emitter,	//0
+		Listener	//1
+	};
 };

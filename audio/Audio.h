@@ -54,19 +54,29 @@ class Audio {
 	};
 
 	//聞こえる方向や位置の変数
-	X3DAUDIO_VECTOR EOrientFront = {};
+	X3DAUDIO_VECTOR EOrientFront = {0,0,1};
 	X3DAUDIO_VECTOR EOrientTop   = {};
 	X3DAUDIO_VECTOR EPosition    = {};
 	X3DAUDIO_VECTOR EVelocity    = {};
-	X3DAUDIO_VECTOR LOrientFront = {};
+	X3DAUDIO_VECTOR LOrientFront = {0,0,1};
 	X3DAUDIO_VECTOR LOrientTop   = {};
 	X3DAUDIO_VECTOR LPosition    = {};
 	X3DAUDIO_VECTOR LVelocity    = {};
+
+	X3DAUDIO_HANDLE X3DInstance;
 
 	//オーディオデータを扱う便利なインターフェース
 	IXAudio2SourceVoice* pSourceVoice = nullptr;
 	//サブミックスボイス
 	IXAudio2SourceVoice* pSubmixVoice;
+	IXAudio2MasteringVoice* masterVoice;
+
+	//エミッタ構造体
+	X3DAUDIO_LISTENER Listener = {};
+	X3DAUDIO_EMITTER Emitter = {};
+
+	// X3DAUDIO_DSP_SETTING構造体
+	X3DAUDIO_DSP_SETTINGS DSPSettings = {0};
 
 	/// <summary>
 	/// オーディオコールバック
