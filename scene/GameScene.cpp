@@ -75,21 +75,21 @@ void GameScene::Update() {
 		worldTransform_[1].translation_.z += moveSpeed;
 	}
 
-	//回転移動(横)
-	const float rotSpeed = 0.02f;
+	////回転移動(横)
+	//const float rotSpeed = 0.02f;
 
-	//回転ベクトル変更
-	if (input_->PushKey(DIK_U)) {
-		viewAngle += rotSpeed;
-		viewAngle = fmodf(viewAngle, XM_2PI);
-	} else if (input_->PushKey(DIK_I)) {
-		viewAngle -= rotSpeed;
-		viewAngle = fmodf(viewAngle, XM_2PI);
-	}
+	////回転ベクトル変更
+	//if (input_->PushKey(DIK_U)) {
+	//	viewAngle += rotSpeed;
+	//	viewAngle = fmodf(viewAngle, XM_2PI);
+	//} else if (input_->PushKey(DIK_I)) {
+	//	viewAngle -= rotSpeed;
+	//	viewAngle = fmodf(viewAngle, XM_2PI);
+	//}
 
-	//回転ベクトルの加算
-	worldTransform_[1].translation_.x = cosf(viewAngle) * 30.0f;
-	worldTransform_[1].translation_.z = sinf(viewAngle) * 30.0f;
+	////回転ベクトルの加算
+	//worldTransform_[1].translation_.x = cosf(viewAngle) * 30.0f;
+	//worldTransform_[1].translation_.z = sinf(viewAngle) * 30.0f;
 
 	//行列の再計算
 	worldTransform_[1].UpdateMatrix();
@@ -100,7 +100,8 @@ void GameScene::Update() {
 	//1Way音量調整//
 	//Y座標の距離計算
 	float distance;
-	distance = abs(audio_->Emitter.Position.y - audio_->Listener.Position.y);
+	distance = (abs(audio_->Emitter.Position.x - audio_->Listener.Position.x) +
+	           abs(audio_->Emitter.Position.y - audio_->Listener.Position.y))/2;
 
 	//距離をもとに音量パラメーター設定
 	float volume;
