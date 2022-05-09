@@ -8,6 +8,7 @@
 #include <wrl.h>
 #include <xaudio2.h>
 #include "x3daudio.h"
+#include "xapofx.h"
 
 /// <summary>
 /// オーディオ
@@ -77,6 +78,15 @@ class Audio {
 
 	// X3DAUDIO_DSP_SETTING構造体
 	X3DAUDIO_DSP_SETTINGS DSPSettings = {0};
+
+	//エフェクト
+	IUnknown* pXAPO;
+	//XAUDIO2_EFFECT_DESCRIPTOR構造体
+	XAUDIO2_EFFECT_DESCRIPTOR descriptor;
+	//XAUDIO2_EFFECT_CHAIN構造体
+	XAUDIO2_EFFECT_CHAIN chain;
+	//リバーブパラメータ
+	FXREVERB_PARAMETERS XAPOParameters;
 
 	/// <summary>
 	/// オーディオコールバック

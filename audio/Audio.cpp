@@ -39,17 +39,49 @@ void Audio::Initialize(const std::string& directoryPath) {
 	DWORD dwChannelMask;
 	masterVoice->GetChannelMask(&dwChannelMask);
 
+	//エフェクト作成
+	CreateFX(__uuidof(FXReverb), &pXAPO);	//FXReverb:リバーブエフェクト
+
+	//XAUDIO2_EFFECT_DESCRIPTOR構造体にデータを設定
+	descriptor.InitialState = true;	//エフェクト有効にするか
+	descriptor.OutputChannels = 2;	//チャネルの数
+	descriptor.pEffect = pXAPO;		//IUnknownインターフェイスへのポインタ
+
+	//XAUDIO2_EFFECT_CHAIN構造体
+	chain.EffectCount = 1;
+	chain.pEffectDescriptors = &descriptor;
+
+	//リバーブの反射の仕方的な
+	XAPOParameters.Diffusion = FXREVERB_MAX_DIFFUSION;
+	//リバーブの反射する場所の距離的な
+	XAPOParameters.RoomSize = FXREVERB_DEFAULT_ROOMSIZE;
+
 	//X3DAudio初期化
 	X3DAudioInitialize(dwChannelMask, X3DAUDIO_SPEED_OF_SOUND, X3DInstance);
+
+	Listener.pCone = nullptr;
+	Emitter.InnerRadius = 2.0f;
+	Emitter.ChannelRadius = 10.0f;
+	Emitter.CurveDistanceScaler = 1.0f;
+
+	//向き、位置、ベクトルの代入
+	Emitter.OrientFront = EOrientFront;
+	Emitter.OrientTop = EOrientTop;
+	Emitter.Position = EPosition;
+	Emitter.Velocity = EVelocity;
+	Listener.OrientFront = LOrientFront;
+	Listener.OrientTop = LOrientTop;
+	Listener.Position = LPosition;
+	Listener.Velocity = LVelocity;
 
 	//エミッタ構造体のインスタンスを作成
 	Emitter.ChannelCount = 1;
 	Emitter.CurveDistanceScaler = FLT_MIN;
 
 	//X3DAUDIO_DSP_SETTING構造体のインスタンスを作成
-	FLOAT32* matrix = new FLOAT32[Emitter.ChannelCount];	//ここ一帯不安すぎ
+	FLOAT32* matrix = new FLOAT32[descriptor.OutputChannels]; //ここ一帯不安すぎ
 	DSPSettings.SrcChannelCount = 1;
-	DSPSettings.DstChannelCount = Emitter.ChannelCount;
+	DSPSettings.DstChannelCount = descriptor.OutputChannels;
 	DSPSettings.pMatrixCoefficients = matrix;
 }
 
@@ -160,16 +192,6 @@ uint32_t Audio::PlayWave(uint32_t soundDataHandle, bool loopFlag, float volume) 
 
 	assert(soundDataHandle <= soundDatas_.size());
 
-	//向き、位置、ベクトルの代入
-	Emitter.OrientFront = EOrientFront;
-	Emitter.OrientTop = EOrientTop;
-	Emitter.Position = EPosition;
-	Emitter.Velocity = EVelocity;
-	Listener.OrientFront = LOrientFront;
-	Listener.OrientTop = LOrientTop;
-	Listener.Position = LPosition;
-	Listener.Velocity = LVelocity;
-
 	// サウンドデータの参照を取得
 	SoundData& soundData = soundDatas_.at(soundDataHandle);
 	// 未読み込みの検出
@@ -214,6 +236,12 @@ uint32_t Audio::PlayWave(uint32_t soundDataHandle, bool loopFlag, float volume) 
 
 	//計算されたリバーブレベルをサブミックスの音声に適用
 	pSourceVoice->SetOutputMatrix(pSubmixVoice, 1, 1, &DSPSettings.ReverbLevel);
+
+	//エフェクトチェーンをvoiceに適用
+	pSourceVoice->SetEffectChain(&chain);
+	pXAPO->Release();
+
+	result = pSourceVoice->SetEffectParameters(0, &XAPOParameters, sizeof(FXREVERB_PARAMETERS));
 
 	//計算された低パスフィルターの直接係数をソースの音声に適用
 	XAUDIO2_FILTER_PARAMETERS FilterParameters = {
