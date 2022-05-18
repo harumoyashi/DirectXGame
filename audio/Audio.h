@@ -9,6 +9,8 @@
 #include <xaudio2.h>
 #include "x3daudio.h"
 #include "xapofx.h"
+#include "mmreg.h"
+#include "Input.h"
 
 /// <summary>
 /// オーディオ
@@ -55,13 +57,13 @@ class Audio {
 	};
 
 	//聞こえる方向や位置の変数
-	X3DAUDIO_VECTOR EOrientFront = {0,0,1};
-	X3DAUDIO_VECTOR EOrientTop   = {};
-	X3DAUDIO_VECTOR EPosition    = {};
+	X3DAUDIO_VECTOR EOrientFront = {0,1,0};
+	X3DAUDIO_VECTOR EOrientTop   = {0,0,-1};
+	X3DAUDIO_VECTOR EPosition    = {0,0,0};
 	X3DAUDIO_VECTOR EVelocity    = {};
-	X3DAUDIO_VECTOR LOrientFront = {0,0,1};
-	X3DAUDIO_VECTOR LOrientTop   = {};
-	X3DAUDIO_VECTOR LPosition    = {};
+	X3DAUDIO_VECTOR LOrientFront = {0,-1,0};
+	X3DAUDIO_VECTOR LOrientTop   = {0,0,1};
+	X3DAUDIO_VECTOR LPosition    = {200.0f,0,0};
 	X3DAUDIO_VECTOR LVelocity    = {};
 
 	X3DAUDIO_HANDLE X3DInstance;
@@ -69,7 +71,7 @@ class Audio {
 	//オーディオデータを扱う便利なインターフェース
 	IXAudio2SourceVoice* pSourceVoice = nullptr;
 	//サブミックスボイス
-	IXAudio2SourceVoice* pSubmixVoice;
+	IXAudio2SubmixVoice* pSubmixVoice;
 	IXAudio2MasteringVoice* masterVoice;
 
 	//エミッタ構造体
@@ -79,6 +81,9 @@ class Audio {
 	// X3DAUDIO_DSP_SETTING構造体
 	X3DAUDIO_DSP_SETTINGS DSPSettings = {0};
 
+	XAUDIO2_VOICE_DETAILS deviceDetails;
+	X3DAUDIO_CONE emitterCone;
+
 	//エフェクト
 	IUnknown* pXAPO;
 	//XAUDIO2_EFFECT_DESCRIPTOR構造体
@@ -87,6 +92,18 @@ class Audio {
 	XAUDIO2_EFFECT_CHAIN chain;
 	//リバーブパラメータ
 	FXREVERB_PARAMETERS XAPOParameters;
+
+	FormatChunk format = {};
+
+	//X3DAudio values
+	X3DAUDIO_DISTANCE_CURVE_POINT volumePoints[10];
+	X3DAUDIO_DISTANCE_CURVE volumeCurve;
+
+	X3DAUDIO_DISTANCE_CURVE_POINT reverbPoints[10];
+	X3DAUDIO_DISTANCE_CURVE reverbCurve;
+
+	/*std::unique_ptr<float[]> matrix;*/
+	int reverbIndex = 0;
 
 	/// <summary>
 	/// オーディオコールバック
@@ -134,6 +151,8 @@ class Audio {
 	/// <param name="soundData">サウンドデータ</param>
 	void Unload(SoundData* soundData);
 
+	void SetReverb(int reverbIndex);
+
 	/// <summary>
 	/// 音声再生
 	/// </summary>
@@ -142,7 +161,7 @@ class Audio {
 	/// <param name="volume">ボリューム
 	/// 0で無音、1がデフォルト音量。あまり大きくしすぎると音割れする</param>
 	/// <returns>再生ハンドル</returns>
-	uint32_t PlayWave(uint32_t soundDataHandle, bool loopFlag = false, float volume = 1.0f);
+	uint32_t PlayWave(uint32_t soundDataHandle, bool loopFlag = false, float volume = 0.5f);
 
 	/// <summary>
 	/// 音声停止
@@ -170,6 +189,8 @@ class Audio {
 	~Audio() = default;
 	Audio(const Audio&) = delete;
 	const Audio& operator=(const Audio&) = delete;
+
+	Input* input_ = nullptr;
 
 	// XAudio2のインスタンス
 	Microsoft::WRL::ComPtr<IXAudio2> xAudio2_;
