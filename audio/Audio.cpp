@@ -49,7 +49,7 @@ void Audio::Initialize(const std::string& directoryPath) {
 	CreateFX(__uuidof(FXReverb), &pXAPO); // FXReverb:リバーブエフェクト
 
 	// XAUDIO2_EFFECT_DESCRIPTOR構造体にデータを設定
-	descriptor.InitialState = false; //エフェクト有効にするか
+	descriptor.InitialState = true; //エフェクト有効にするか
 	descriptor.OutputChannels = 2;   //チャネルの数
 	descriptor.pEffect = pXAPO;      // IUnknownインターフェイスへのポインタ
 
@@ -59,7 +59,7 @@ void Audio::Initialize(const std::string& directoryPath) {
 
 	//エフェクト情報などを適用するためのサブミックスボイス生成
 	xAudio2_->CreateSubmixVoice(
-	  &pSubmixVoice, 1, deviceDetails.InputSampleRate, 0, 0, nullptr, 0);	//最後&chainにするとエフェクトついたり
+	  &pSubmixVoice, 1, deviceDetails.InputSampleRate, 0, 0, nullptr, &chain);	//最後&chainにするとエフェクトついたり
 
 	//////////////////////
 	//	X3DAudio初期化	//
@@ -171,20 +171,16 @@ void Audio::Initialize(const std::string& directoryPath) {
 	format.fmt.wBitsPerSample = 16;
 	format.fmt.cbSize = 0;
 
-	//リバーブの反射の仕方的な
-	XAPOParameters.Diffusion = FXREVERB_MAX_DIFFUSION;
-	//リバーブの反射する場所の距離的な
-	XAPOParameters.RoomSize = FXREVERB_DEFAULT_ROOMSIZE;
+	SetReverb();
 
 	//サウンドデータ読み込み
 	uint32_t soundDetaHandle_ = LoadWave("fanfare.wav");
-	//音声再生
-	PlayWave(soundDetaHandle_, true);
 }
 
 void Audio::Finalize() {
 	// XAudio2解放
 	xAudio2_.Reset();
+	pXAPO->Release();
 	// 音声データ解放
 	for (auto& soundData : soundDatas_) {
 		Unload(&soundData);
@@ -285,6 +281,7 @@ void Audio::Unload(SoundData* soundData) {
 	soundData->wfex = {};
 }
 
+
 uint32_t Audio::PlayWave(uint32_t soundDataHandle, bool loopFlag, float volume) {
 	HRESULT result;
 
@@ -306,7 +303,7 @@ uint32_t Audio::PlayWave(uint32_t soundDataHandle, bool loopFlag, float volume) 
 
 	// 波形フォーマットを元にSourceVoiceの生成
 	result = xAudio2_->CreateSourceVoice(
-	  &pSourceVoice, &soundData.wfex, 0, XAUDIO2_DEFAULT_FREQ_RATIO, &voiceCallback_, &sendList);
+	  &pSourceVoice, &soundData.wfex, 0, XAUDIO2_DEFAULT_FREQ_RATIO, &voiceCallback_/*, &sendList*/);
 	assert(SUCCEEDED(result));
 
 	// 再生中データ
@@ -416,7 +413,6 @@ uint32_t Audio::PlayWave(uint32_t soundDataHandle, bool loopFlag, float volume) 
 
 	//エフェクトチェーンをvoiceに適用
 	pSourceVoice->SetEffectChain(&chain);
-	pXAPO->Release();
 
 	result = pSourceVoice->SetEffectParameters(0, &XAPOParameters, sizeof(FXREVERB_PARAMETERS));
 	assert(SUCCEEDED(result));
@@ -471,4 +467,11 @@ void Audio::SetVolume(uint32_t voiceHandle, float volume) {
 	if (it != voices_.end()) {
 		(*it)->sourceVoice->SetVolume(volume);
 	}
+}
+
+void Audio::SetReverb() {
+	//リバーブの反射面の硬さ的な
+	XAPOParameters.Diffusion = FXREVERB_MAX_DIFFUSION;
+	//リバーブの反射する距離的な
+	XAPOParameters.RoomSize = FXREVERB_MAX_ROOMSIZE;
 }

@@ -74,4 +74,10 @@ class GameScene {
 		Emitter,	//0
 		Listener	//1
 	};
+
+	//リバーブ設定用
+	float diffusion = FXREVERB_DEFAULT_DIFFUSION;
+	float roomSize = FXREVERB_DEFAULT_ROOMSIZE;
+
+	int reverbType = 0;	//0:diffusion,1:roomSize
 };

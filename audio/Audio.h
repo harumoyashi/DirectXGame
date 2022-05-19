@@ -150,10 +150,8 @@ class Audio {
 	/// </summary>
 	/// <param name="soundData">サウンドデータ</param>
 	void Unload(SoundData* soundData);
-
-	void SetReverb(int reverbIndex);
-
 	/// <summary>
+
 	/// 音声再生
 	/// </summary>
 	/// <param name="soundDataHandle">サウンドデータハンドル</param>
@@ -183,6 +181,9 @@ class Audio {
 	/// <param name="volume">ボリューム
 	/// 0で無音、1がデフォルト音量。あまり大きくしすぎると音割れする</param>
 	void SetVolume(uint32_t voiceHandle, float volume);
+
+	//リバーブの設定
+	void SetReverb();
 
   private:
 	Audio() = default;

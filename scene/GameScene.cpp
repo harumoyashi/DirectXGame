@@ -17,6 +17,9 @@ void GameScene::Initialize() {
 	audio_ = Audio::GetInstance();
 	debugText_ = DebugText::GetInstance();
 
+	//音声再生
+	audio_->PlayWave(soundDetaHandle_, true);
+
 	//ファイルを指定してテクスチャを読み込む
 	textureHandle_ = TextureManager::Load("mario.jpg");
 
@@ -124,22 +127,34 @@ void GameScene::Update() {
 	}
 
 	/*if (input_->TriggerKey(DIK_UP)) {
-		if (reverbIndex < 22) {
-			reverbIndex++;
+		if (reverbType == 0 && diffusion < FXREVERB_MAX_DIFFUSION) {
+			diffusion += 0.1f;
+		} else if (reverbType == 1 && roomSize < FXREVERB_MAX_ROOMSIZE) {
+			roomSize += 0.1f;
 		}
-		audio_->SetReverb(reverbIndex);
 	} else if (input_->TriggerKey(DIK_DOWN)) {
-		if (reverbIndex > 1) {
-			reverbIndex--;
+		if (reverbType == 0 && diffusion > FXREVERB_MIN_DIFFUSION) {
+			diffusion -= 0.1f;
+		} else if (reverbType == 1 && roomSize > FXREVERB_MIN_ROOMSIZE) {
+			roomSize -= 0.1f;
+		} else if (reverbType == 1 && roomSize > (FXREVERB_MIN_ROOMSIZE + 0.1f)) {
+			roomSize = FXREVERB_MIN_ROOMSIZE;
 		}
-		audio_->SetReverb(reverbIndex);
+	}
+
+	if (input_->TriggerKey(DIK_RETURN)) {
+		if (reverbType == 0) {
+			reverbType = 1;
+		} else {
+			reverbType = 0;
+		}
 	}*/
 
-	if (input_->TriggerKey(DIK_R)) {
-		audio_->XAPOParameters.Diffusion = FXREVERB_MIN_DIFFUSION;
-		audio_->pSourceVoice->SetEffectParameters(
-		  0, &audio_->XAPOParameters, sizeof(FXREVERB_PARAMETERS));
-	}
+	/*if (input_->TriggerKey(DIK_R)) {
+	    audio_->XAPOParameters.Diffusion = FXREVERB_MIN_DIFFUSION;
+	    audio_->pSourceVoice->SetEffectParameters(
+	      0, &audio_->XAPOParameters, sizeof(FXREVERB_PARAMETERS));
+	}*/
 
 	/*float volume3 = 0.2f;
 	float volume2 = 1.0f;
@@ -147,7 +162,7 @@ void GameScene::Update() {
 	audio_->pSourceVoice->SetChannelVolumes(SPEAKER_FRONT_LEFT, &volume3);
 	audio_->pSourceVoice->SetChannelVolumes(SPEAKER_FRONT_RIGHT, &volume2);*/
 
-	debugText_->SetPos(20, 20);
+	/*debugText_->SetPos(20, 20);
 	debugText_->Printf(
 	  "EmitterPos:\nx:%f\ny:%f\nz:%f", audio_->Emitter.Position.x, audio_->Emitter.Position.y,
 	  audio_->Emitter.Position.z);
@@ -155,7 +170,29 @@ void GameScene::Update() {
 	debugText_->SetPos(20, 50);
 	debugText_->Printf(
 	  "WorldEmitterPos:\nx:%f\ny:%f\nz:%f", worldTransform_[Emitter].translation_.x,
-	  worldTransform_[Emitter].translation_.y, worldTransform_[Emitter].translation_.z);
+	  worldTransform_[Emitter].translation_.y, worldTransform_[Emitter].translation_.z);*/
+
+	debugText_->SetPos(20, 20);
+	debugText_->Printf("[SPACE] effect ON,OFF");
+
+	/*debugText_->SetPos(500, 20);
+	debugText_->Printf("[ENTER] parameter switching to change");
+
+	debugText_->SetPos(20, 50);
+	debugText_->Printf("[UP] parameter up\n[DOWN] parameter down");*/
+
+	debugText_->SetPos(20, 80);
+	if (audio_->descriptor.InitialState == true) {
+		debugText_->Printf("Effect:ON");
+	} else {
+		debugText_->Printf("Effect:OFF");
+	}
+
+	debugText_->SetPos(20, 100);
+	debugText_->Printf("diffusion:%f", audio_->XAPOParameters.Diffusion);
+
+	debugText_->SetPos(200, 100);
+	debugText_->Printf("roomSize:%f", audio_->XAPOParameters.RoomSize);
 }
 
 void GameScene::Draw() {
