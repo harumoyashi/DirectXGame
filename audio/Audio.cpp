@@ -172,9 +172,6 @@ void Audio::Initialize(const std::string& directoryPath) {
 	format.fmt.cbSize = 0;
 
 	SetReverb();
-
-	//サウンドデータ読み込み
-	uint32_t soundDetaHandle_ = LoadWave("fanfare.wav");
 }
 
 void Audio::Finalize() {

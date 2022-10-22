@@ -17,6 +17,8 @@ void GameScene::Initialize() {
 	audio_ = Audio::GetInstance();
 	debugText_ = DebugText::GetInstance();
 
+	//サウンドデータ読み込み
+	soundDetaHandle_ = audio_->LoadWave("fanfare.wav");
 	//音声再生
 	audio_->PlayWave(soundDetaHandle_, true);
 
